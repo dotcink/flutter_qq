@@ -53,7 +53,6 @@ public class FlutterQqPlugin implements MethodCallHandler {
     @Override
     public void onMethodCall(MethodCall call, Result result) {
         OneListener listener = new OneListener();
-        registrar.addActivityResultListener(listener);
         switch (call.method) {
             case "registerQQ":
                 registerQQ(call, result);
@@ -64,15 +63,18 @@ public class FlutterQqPlugin implements MethodCallHandler {
             case "login":
                 isLogin = true;
                 listener.setResult(result);
+                registrar.addActivityResultListener(listener);
                 login(call, listener);
                 break;
             case "shareToQQ":
                 isLogin = false;
                 listener.setResult(result);
+                registrar.addActivityResultListener(listener);
                 doShareToQQ(call, listener);
                 break;
             case "shareToQzone":
                 isLogin = false;
+                registrar.addActivityResultListener(listener);
                 listener.setResult(result);
                 doShareToQzone(call, listener);
                 break;
@@ -169,20 +171,22 @@ public class FlutterQqPlugin implements MethodCallHandler {
 
         @Override
         public void onComplete(Object response) {
+            if (result == null) return;
+
             Log.i("FlutterQqPlugin", response.toString());
             Map<String, Object> re = new HashMap<>();
             if (isLogin) {
                 if (null == response) {
                     re.put("Code", 1);
                     re.put("Message", "response is empty");
-                    result.success(re);
+                    onResultSuccess(re);
                     return;
                 }
                 JSONObject jsonResponse = (JSONObject) response;
                 if (null != jsonResponse && jsonResponse.length() == 0) {
                     re.put("Code", 1);
                     re.put("Message", "response is empty");
-                    result.success(re);
+                    onResultSuccess(re);
                     return;
                 }
                 Map<String, Object> resp = new HashMap<>();
@@ -195,18 +199,18 @@ public class FlutterQqPlugin implements MethodCallHandler {
                     re.put("Code", 0);
                     re.put("Message", "ok");
                     re.put("Response", resp);
-                    result.success(re);
+                    onResultSuccess(re);
                     return;
                 } catch (Exception e) {
                     re.put("Code", 1);
                     re.put("Message", e.getLocalizedMessage());
-                    result.success(re);
+                    onResultSuccess(re);
                     return;
                 }
             }
             re.put("Code", 0);
             re.put("Message", response.toString());
-            result.success(re);
+            onResultSuccess(re);
         }
 
         @Override
@@ -215,7 +219,7 @@ public class FlutterQqPlugin implements MethodCallHandler {
             Map<String, Object> re = new HashMap<>();
             re.put("Code", 1);
             re.put("Message", "errorCode:" + uiError.errorCode + ";errorMessage:" + uiError.errorMessage);
-            result.success(re);
+            onResultSuccess(re);
         }
 
         @Override
@@ -224,11 +228,13 @@ public class FlutterQqPlugin implements MethodCallHandler {
             Map<String, Object> re = new HashMap<>();
             re.put("Code", 2);
             re.put("Message", "cancel");
-            result.success(re);
+            onResultSuccess(re);
         }
 
         @Override
         public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (result == null) return false;
+
             if (requestCode == Constants.REQUEST_LOGIN ||
                     requestCode == Constants.REQUEST_QQ_SHARE ||
                     requestCode == Constants.REQUEST_QZONE_SHARE ||
@@ -238,5 +244,11 @@ public class FlutterQqPlugin implements MethodCallHandler {
             }
             return false;
         }
+
+        private void onResultSuccess(Map<String, Object> map) {
+            result.success(map);
+            result = null;
+        }
+
     }
 }
