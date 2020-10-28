@@ -16,7 +16,9 @@ Flutter plugin for QQ.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'QQSDK'
+  s.xcconfig = { 'FRAMEWORK_SEARCH_PATHS' => '"${PODS_ROOT}/TencentQQSDK/TencentQQSDK/Classes"',
+                 'HEADER_SEARCH_PATHS' => '"${PODS_ROOT}/TencentQQSDK/TencentQQSDK/Classes"' }
+  # s.dependency 'QQSDK'
   
   s.ios.deployment_target = '8.0'
 end
