@@ -223,6 +223,11 @@ public class FlutterQqPlugin implements MethodCallHandler {
         }
 
         @Override
+        public void onWarning(int i) {
+
+        }
+
+        @Override
         public void onCancel() {
             Log.w("FlutterQqPlugin", "error:cancel");
             Map<String, Object> re = new HashMap<>();
