@@ -11,7 +11,8 @@
 {
     self = [super init];
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOpenURL:)
+                                             selector:@selector(
+                                                 OpenURL:)
                                                  name:@"QQ"
                                                object:nil];
     return self;
@@ -183,6 +184,8 @@
 
 - (void) onResp:(QQBaseResp *)resp
 {
+    if (result == nil) return;
+    
     if([resp isKindOfClass:[SendMessageToQQResp class]])
     {
         NSMutableDictionary *body = @{@"type":@"QQShareResponse"}.mutableCopy;
